@@ -1,7 +1,7 @@
 import { CARDS } from "./cards.js";
 
 /**
- * Create a 3x3 board on the canvas
+ * Create a 3x3 board on the canvas made of rows and columns
  * Start a game in either single- or multi-player mode
  * Deal cards to each player
  * Handle selecting a card, placing a card on the board, validating placement, and resolving outcome
@@ -18,7 +18,6 @@ class Game {
   initialize(board) {
     this.board = board;
     this.createSpaces();
-    this.createHands();
   }
 
   createSpaces() {
@@ -36,7 +35,7 @@ class Game {
     }
   }
 
-  createHands() {
+  dealCards() {
     const hand = document.getElementById("hand");
     for (let i = 0; i < CARDS.length; i++) {
       const card = document.createElement("div");
@@ -51,6 +50,7 @@ class Game {
 
   onDrag(e) {
     // Add the target element's id to the data transfer object
+    console.log(e);
     e.dataTransfer.setData("text/plain", e.target.innerText);
     e.dataTransfer.setData("application/my-app", e.target.id);
   }
@@ -64,8 +64,6 @@ class Game {
   handleDrop(ev, row, column) {
     ev.preventDefault();
     var data = ev.dataTransfer.getData("text/plain");
-
-    console.log("row and column ", row, column);
 
     const id = ev.dataTransfer.getData("application/my-app");
     ev.target.appendChild(document.getElementById(id));

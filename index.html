@@ -14,6 +14,7 @@
       <div id="hand"></div>
       <div id="board"></div>
     </div>
+    <button id="start-button">Deal cards</button>
   </body>
   <script src="cards.js" type="module"></script>
   <script src="index.js" type="module"></script>
@@ -22,6 +23,9 @@
       var board = document.getElementById("board");
       var game = new Game("single");
       game.initialize(board);
+
+      var startButton = document.getElementById("start-button");
+      startButton.addEventListener("click", game.dealCards.bind(game));
     };
   </script>
 </html>
