@@ -1,0 +1,46 @@
+h1 {
+  font-size: 40px;
+  color: red;
+}
+
+p {
+  font-size: 18px;
+}
+
+.container {
+  display: flex;
+  justify-content: space-between;
+  max-width: 1080px;
+}
+#board {
+  margin: auto;
+  width: 500px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  grid-gap: 1em;
+  margin-bottom: 2em;
+}
+
+#board .space {
+  flex: 1 0 30%;
+  height: 250px;
+  border: 1px solid black;
+  border-radius: 5px;
+}
+
+#hand {
+  margin: auto;
+  width: 500px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  grid-gap: 1em;
+}
+
+#hand .card {
+  flex: 0 0 30%;
+  height: 250px;
+  border: 1px solid red;
+  border-radius: 5px;
+}
