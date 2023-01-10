@@ -1,4 +1,8 @@
 import { CARDS } from "./cards.js";
+const PLAYER = {
+  ONE: "one",
+  TWO: "two",
+};
 
 /**
  * Create a 3x3 board on the canvas made of rows and columns
@@ -18,15 +22,22 @@ class Game {
     this.mode = mode;
     this.boardEl = undefined;
     this.board = [
-      [{}, {}, {}],
-      [{}, {}, {}],
-      [{}, {}, {}],
+      [null, null, null],
+      [null, null, null],
+      [null, null, null],
     ];
+    this.playerTurn = undefined;
   }
 
   initialize(boardEl) {
     this.boardEl = boardEl;
     this.createCells(this.rows, this.columns);
+  }
+
+  start(playerOneEl, playerTwoEl) {
+    this.updatePlayerTurn();
+    this.dealCards(playerOneEl, "one");
+    this.dealCards(playerTwoEl, "two");
   }
 
   createCells(rows, columns) {
@@ -50,58 +61,122 @@ class Game {
     return cell;
   }
 
+  updatePlayerTurn(playerNum) {
+    if (!playerNum) {
+      this.playerTurn = [PLAYER.ONE, PLAYER.TWO][Math.floor(Math.random() * 2)];
+    } else {
+      this.playerTurn = playerNum;
+    }
+
+    document.getElementById(
+      "player-turn"
+    ).innerHTML = `<h3>It is player ${this.playerTurn}'s turn</h3>`;
+  }
+
   /** Update the board's game state */
   updateBoard(row, column, card) {
     const board = { ...this.board };
-    board[row][column] = {
-      value: card.power,
-      owner: "", // card.owner
-    };
-    this.board = board;
 
-    console.log("updated board ", this.board);
+    /** First, add the new card to the cell */
+    board[row][column] = {
+      power: card.power,
+      owner: this.playerTurn, // card.owner
+      row,
+      column,
+    };
+
+    /** Second, calculate if any surrounding cards can be flipped */
+    const flippableRowCards = this.checkRow(board[row], column, card);
+    const flippableColCards = this.checkColumn(board, row, column, card);
+    const cardsToFlip = [...flippableColCards, ...flippableRowCards];
+
+    /** Update the board state and board cells*/
+    const boardCell = document.getElementById(`cell-${row}-${column}`);
+    boardCell.classList.add(this.playerTurn);
+
+    const otherPlayer =
+      this.playerTurn === PLAYER.ONE ? PLAYER.TWO : PLAYER.ONE;
+
+    cardsToFlip.forEach((card) => {
+      board[card.row][card.column].owner = this.playerTurn;
+      const boardCell = document.getElementById(
+        `cell-${card.row}-${card.column}`
+      );
+
+      boardCell.classList.remove(otherPlayer);
+      boardCell.classList.add(this.playerTurn);
+    });
+
+    this.board = board;
   }
 
-  start(playerOneEl, playerTwoEl) {
-    this.dealCards(playerOneEl, "one");
-    this.dealCards(playerTwoEl, "two");
+  /** Check cards in same row ie to the left and right */
+  checkRow(cardsInRow, column, card) {
+    const cardToLeft = cardsInRow[column - 1];
+    const cardToRight = cardsInRow[column + 1];
+
+    return [
+      ...this.getFlippableCards(card, cardToLeft, [3, 1]),
+      ...this.getFlippableCards(card, cardToRight, [1, 3]),
+    ];
+  }
+
+  /** Check cards in same column. Requires getting the previous and next rows */
+  checkColumn(board, row, column, card) {
+    let cardAbove = board[row - 1] && board[row - 1][column];
+    let cardBelow = board[row + 1] && board[row + 1][column];
+
+    return [
+      ...this.getFlippableCards(card, cardAbove, [0, 2]),
+      ...this.getFlippableCards(card, cardBelow, [2, 0]),
+    ];
+  }
+
+  getFlippableCards(currentCard, otherCard, positionsToCompare) {
+    const canCardBeFlipped = otherCard && otherCard.owner !== this.playerTurn;
+
+    if (canCardBeFlipped) {
+      const attackingPosition = positionsToCompare[0];
+      const defendingPosition = positionsToCompare[1];
+
+      if (
+        currentCard.power[attackingPosition] >
+        otherCard.power[defendingPosition]
+      )
+        return [otherCard];
+    }
+
+    return [];
   }
 
   /**
    * There can only be two cards of four-star or higher rarity in a deck.
    * There can only be one card of five-star rarity in a deck.
    */
-  dealCards(hand, playerNum) {
-    hand.innerHTML = "";
+  dealCards(handEl, playerNum) {
+    handEl.innerHTML = "";
 
     const cards = shuffle(CARDS);
     let numFourStarCardsInHand = 0;
     let numFiveStarCardsInHand = 0;
 
     for (let i = 0; i < this.maxCardsPerHand; i++) {
-      let cardData = this.drawCard(cards);
+      let drawnCard = drawCard(cards);
 
-      if (numFiveStarCardsInHand > 0 && cardData.rank === 5) {
-        cardData = this.drawCard(cards, cardData);
+      if (numFiveStarCardsInHand > 0 && drawnCard.rank === 5) {
+        drawnCard = drawCard(cards, drawnCard);
       }
-      if (numFourStarCardsInHand > 1 && cardData.rank === 4) {
-        cardData = this.drawCard(cards, cardData);
+      if (numFourStarCardsInHand > 1 && drawnCard.rank === 4) {
+        drawnCard = drawCard(cards, drawnCard);
       }
 
-      if (cardData.rank === 4) numFourStarCardsInHand += 1;
-      if (cardData.rank === 5) numFiveStarCardsInHand += 1;
+      if (drawnCard.rank === 4) numFourStarCardsInHand += 1;
+      if (drawnCard.rank === 5) numFiveStarCardsInHand += 1;
 
-      const cardEl = this.createCardEl(cardData, playerNum);
+      const cardEl = this.createCardEl(drawnCard, playerNum);
 
-      hand.append(cardEl);
+      handEl.append(cardEl);
     }
-  }
-
-  drawCard(cards, returnedCard) {
-    if (returnedCard) {
-      cards.push(returnedCard);
-    }
-    return cards.shift();
   }
 
   createCardEl(cardData, playerNum) {
@@ -128,8 +203,8 @@ class Game {
     <div class="card__rank">${stars}</div>
   `;
 
-    cardEl.classList.add("card", playerNum);
-    cardEl.setAttribute("id", "card-" + playerNum + "-" + cardData.name);
+    cardEl.classList.add("card");
+    cardEl.setAttribute("id", guidGenerator());
     cardEl.setAttribute("draggable", "true");
     cardEl.addEventListener("dragstart", (e) => {
       this.handleDrag(e, cardData);
@@ -158,6 +233,11 @@ class Game {
     /** Move the card into the board cell in the DOM */
     const id = e.dataTransfer.getData("tt/element-id");
     e.target.appendChild(document.getElementById(id));
+
+    /** Update player turn */
+    const otherPlayer =
+      this.playerTurn === PLAYER.ONE ? PLAYER.TWO : PLAYER.ONE;
+    this.updatePlayerTurn(otherPlayer);
   }
 
   getDroppedCard(e) {
@@ -182,12 +262,31 @@ function shuffle(array) {
   return [...array];
 }
 
-function calculate() {
-  const grid = [
-    [0, 1, 2],
-    [3, 4, 5],
-    [6, 7, 8],
-  ];
+function drawCard(cards, returnedCard) {
+  if (returnedCard) {
+    cards.push(returnedCard);
+  }
+  return cards.shift();
+}
+
+function guidGenerator() {
+  var S4 = function () {
+    return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+  };
+  return (
+    S4() +
+    S4() +
+    "-" +
+    S4() +
+    "-" +
+    S4() +
+    "-" +
+    S4() +
+    "-" +
+    S4() +
+    S4() +
+    S4()
+  );
 }
 
 window.Game = Game;

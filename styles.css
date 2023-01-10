@@ -47,6 +47,21 @@ p {
   grid-gap: 1em;
 }
 
+#player-one-hand.hidden,
+#player-two-hand.hidden {
+  visibility: hidden;
+}
+
+#player-one-hand .card,
+.cell.one .card {
+  border: 1px solid blue;
+}
+
+#player-two-hand .card,
+.cell.two .card {
+  border: 1px solid red;
+}
+
 .card {
   box-sizing: border-box;
   /* flex: 0 0 30%; */
@@ -58,14 +73,6 @@ p {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-}
-
-.card.one {
-  border: 1px solid blue;
-}
-
-.card.two {
-  border: 1px solid red;
 }
 
 .card p {
@@ -102,14 +109,14 @@ p {
   grid-row: 1 /2;
 }
 .card__power .right {
-  grid-column: 1/ 2;
+  grid-column: 3/ 4;
   grid-row: 2/3;
 }
 .card__power .bottom {
-  grid-column: 3 / 4;
-  grid-row: 2/3;
+  grid-column: 2 / 3;
+  grid-row: 3/4;
 }
 .card__power .left {
-  grid-column: 2 /3;
-  grid-row: 3 /4;
+  grid-column: 1 /2;
+  grid-row: 2/3;
 }
