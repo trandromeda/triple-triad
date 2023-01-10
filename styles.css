@@ -55,7 +55,6 @@ p {
 }
 
 .card__name {
-  font-weight: 700;
   text-align: center;
 }
 
@@ -69,6 +68,7 @@ p {
   grid-template-rows: 1fr 1fr 1fr;
   place-items: center;
   width: 50%;
+  font-weight: 700;
 }
 .card__power .top {
   grid-column: 2 /3;

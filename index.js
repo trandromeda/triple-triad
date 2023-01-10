@@ -12,6 +12,7 @@ class Game {
   constructor(mode) {
     this.rows = 3;
     this.columns = 3;
+    this.maxCardsPerHand = 5;
     this.mode = mode;
     this.boardEl = undefined;
     this.board = [
@@ -59,23 +60,49 @@ class Game {
     console.log("updated board ", this.board);
   }
 
+  /**
+   * There can only be two cards of four-star or higher rarity in a deck.
+   * There can only be one card of five-star rarity in a deck.
+   */
   dealCards(e) {
     const hand = document.getElementById("hand");
-    for (let i = 0; i < CARDS.length; i++) {
-      const cardData = CARDS[i];
+    hand.innerHTML = "";
+
+    const cards = shuffle(CARDS);
+    let numFourStarCardsInHand = 0;
+    let numFiveStarCardsInHand = 0;
+
+    for (let i = 0; i < this.maxCardsPerHand; i++) {
+      let cardData = this.drawCard(cards);
+
+      if (numFiveStarCardsInHand > 0 && cardData.rank === 5) {
+        cardData = this.drawCard(cards, cardData);
+      }
+      if (numFourStarCardsInHand > 1 && cardData.rank === 4) {
+        cardData = this.drawCard(cards, cardData);
+      }
+
+      if (cardData.rank === 4) numFourStarCardsInHand += 1;
+      if (cardData.rank === 5) numFiveStarCardsInHand += 1;
+
       const card = document.createElement("div");
 
       let stars = "";
       for (let i = 0; i < cardData.rank; i++) {
-        stars += "*";
+        stars += "⭐️";
       }
+
+      const powers = cardData.power.map((power) => {
+        if (power === 10) return "A";
+        return power;
+      });
 
       card.innerHTML = `
         <div class="card__power">
-            <div class="top">${cardData.power[0]}</div>
-            <div class="right">${cardData.power[1]}</div>
-            <div class="bottom">${cardData.power[2]}</div>
-            <div class="left">${cardData.power[3]}</div>
+            <div class="top">${powers[0]}</div>
+            <div class="right">${powers[1]}</div>
+            <div class="bottom">${powers[2]}</div>
+            <div class="left">${powers[3]}</div>
         </div>
         <p class="card__name">${cardData.name}</p>
         <p class="card__rank">${stars}</p>
@@ -89,6 +116,13 @@ class Game {
       });
       hand.append(card);
     }
+  }
+
+  drawCard(cards, returnedCard) {
+    if (returnedCard) {
+      cards.push(returnedCard);
+    }
+    return cards.shift();
   }
 
   handleDrag(e, card) {
@@ -123,6 +157,16 @@ class Game {
   handleDragOver(ev) {
     ev.preventDefault();
   }
+}
+
+/** Shuffle and return a new array */
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+
+  return [...array];
 }
 
 function calculate() {
