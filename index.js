@@ -9,6 +9,8 @@ import { CARDS } from "./cards.js";
  */
 class Game {
   boundDealCards = () => this.dealCards();
+  boundStart = () => this.start();
+
   constructor(mode) {
     this.rows = 3;
     this.columns = 3;
@@ -60,12 +62,16 @@ class Game {
     console.log("updated board ", this.board);
   }
 
+  start(playerOneEl, playerTwoEl) {
+    this.dealCards(playerOneEl, "one");
+    this.dealCards(playerTwoEl, "two");
+  }
+
   /**
    * There can only be two cards of four-star or higher rarity in a deck.
    * There can only be one card of five-star rarity in a deck.
    */
-  dealCards(e) {
-    const hand = document.getElementById("hand");
+  dealCards(hand, playerNum) {
     hand.innerHTML = "";
 
     const cards = shuffle(CARDS);
@@ -85,36 +91,9 @@ class Game {
       if (cardData.rank === 4) numFourStarCardsInHand += 1;
       if (cardData.rank === 5) numFiveStarCardsInHand += 1;
 
-      const card = document.createElement("div");
+      const cardEl = this.createCardEl(cardData, playerNum);
 
-      let stars = "";
-      for (let i = 0; i < cardData.rank; i++) {
-        stars += "⭐️";
-      }
-
-      const powers = cardData.power.map((power) => {
-        if (power === 10) return "A";
-        return power;
-      });
-
-      card.innerHTML = `
-        <div class="card__power">
-            <div class="top">${powers[0]}</div>
-            <div class="right">${powers[1]}</div>
-            <div class="bottom">${powers[2]}</div>
-            <div class="left">${powers[3]}</div>
-        </div>
-        <p class="card__name">${cardData.name}</p>
-        <p class="card__rank">${stars}</p>
-      `;
-
-      card.classList.add("card");
-      card.setAttribute("id", "card-" + i);
-      card.setAttribute("draggable", "true");
-      card.addEventListener("dragstart", (e) => {
-        this.handleDrag(e, cardData);
-      });
-      hand.append(card);
+      hand.append(cardEl);
     }
   }
 
@@ -123,6 +102,40 @@ class Game {
       cards.push(returnedCard);
     }
     return cards.shift();
+  }
+
+  createCardEl(cardData, playerNum) {
+    const cardEl = document.createElement("div");
+
+    const powers = cardData.power.map((power) => {
+      if (power === 10) return "A";
+      return power;
+    });
+
+    let stars = "";
+    for (let i = 0; i < cardData.rank; i++) {
+      stars += "<span>⭐️</span>";
+    }
+
+    cardEl.innerHTML = `
+    <div class="card__power">
+        <div class="top">${powers[0]}</div>
+        <div class="right">${powers[1]}</div>
+        <div class="bottom">${powers[2]}</div>
+        <div class="left">${powers[3]}</div>
+    </div>
+    <p class="card__name">${cardData.name}</p>
+    <div class="card__rank">${stars}</div>
+  `;
+
+    cardEl.classList.add("card", playerNum);
+    cardEl.setAttribute("id", "card-" + playerNum + "-" + cardData.name);
+    cardEl.setAttribute("draggable", "true");
+    cardEl.addEventListener("dragstart", (e) => {
+      this.handleDrag(e, cardData);
+    });
+
+    return cardEl;
   }
 
   handleDrag(e, card) {

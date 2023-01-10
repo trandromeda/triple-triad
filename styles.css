@@ -1,3 +1,8 @@
+:root {
+  --cell-height: 200px;
+  --cell-width: 120px;
+}
+
 h1 {
   font-size: 40px;
 }
@@ -9,11 +14,12 @@ p {
 .container {
   display: flex;
   justify-content: space-between;
-  max-width: 1080px;
 }
+
 #board {
   margin: auto;
-  width: 500px;
+  max-width: 400px;
+  width: 40%;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -22,15 +28,19 @@ p {
 }
 
 #board .cell {
-  flex: 1 0 30%;
-  height: 250px;
+  /* flex: 1 0 30%; */
+  width: var(--cell-width);
+  height: var(--cell-height);
   border: 1px solid black;
   border-radius: 5px;
 }
 
-#hand {
+#player-one-hand,
+#player-two-hand {
   margin: auto;
-  width: 500px;
+  width: 30%;
+  height: 100%;
+  border: 1px solid #f1f1f1;
   display: flex;
   flex-wrap: wrap;
   justify-content: space-around;
@@ -39,15 +49,23 @@ p {
 
 .card {
   box-sizing: border-box;
-  flex: 0 0 30%;
-  height: 250px;
+  /* flex: 0 0 30%; */
+  width: var(--cell-width);
+  height: var(--cell-height);
   padding: 0.5em;
-  border: 1px solid red;
   border-radius: 5px;
 
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+}
+
+.card.one {
+  border: 1px solid blue;
+}
+
+.card.two {
+  border: 1px solid red;
 }
 
 .card p {
@@ -59,7 +77,16 @@ p {
 }
 
 .card__rank {
+  max-width: 90%;
+  margin: 0 auto;
   text-align: right;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+}
+
+.card__rank span {
+  font-size: 0.8em;
 }
 
 .card__power {

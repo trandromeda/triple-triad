@@ -11,10 +11,15 @@
     <h1>Triple Triad</h1>
 
     <div class="container">
-      <div id="hand"></div>
+      <div id="player-one-hand">
+        <h3>Player one</h3>
+      </div>
       <div id="board"></div>
+      <div id="player-two-hand">
+        <h3>Player two</h3>
+      </div>
     </div>
-    <button id="start-button">Deal cards</button>
+    <button id="start-button">Start game</button>
   </body>
   <script src="cards.js" type="module"></script>
   <script src="index.js" type="module"></script>
@@ -24,8 +29,12 @@
       var game = new Game("single");
       game.initialize(board);
 
+      var playerOne = document.getElementById("player-one-hand");
+      var playerTwo = document.getElementById("player-two-hand");
       var startButton = document.getElementById("start-button");
-      startButton.addEventListener("click", game.boundDealCards);
+      startButton.addEventListener("click", () =>
+        game.start(playerOne, playerTwo)
+      );
     };
   </script>
 </html>
