@@ -25,7 +25,7 @@
       game.initialize(board);
 
       var startButton = document.getElementById("start-button");
-      startButton.addEventListener("click", game.dealCards.bind(game));
+      startButton.addEventListener("click", game.boundDealCards);
     };
   </script>
 </html>

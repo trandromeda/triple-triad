@@ -8,70 +8,119 @@ import { CARDS } from "./cards.js";
  * Handle end of game
  */
 class Game {
+  boundDealCards = () => this.dealCards();
   constructor(mode) {
     this.rows = 3;
     this.columns = 3;
     this.mode = mode;
-    this.board = undefined;
+    this.boardEl = undefined;
+    this.board = [
+      [{}, {}, {}],
+      [{}, {}, {}],
+      [{}, {}, {}],
+    ];
   }
 
-  initialize(board) {
-    this.board = board;
-    this.createSpaces();
+  initialize(boardEl) {
+    this.boardEl = boardEl;
+    this.createCells(this.rows, this.columns);
   }
 
-  createSpaces() {
-    const rows = this.rows;
-    const columns = this.columns;
+  createCells(rows, columns) {
     for (let i = 0; i < rows; i++) {
       for (let j = 0; j < columns; j++) {
-        const space = document.createElement("div");
-        space.classList.add("space");
-        space.setAttribute("id", "cell-" + "" + i + "-" + j);
-        space.addEventListener("drop", this.onDrop(i, j));
-        space.addEventListener("dragover", this.onDragOver);
-        this.board.append(space);
+        const cell = this.createCell(i, j);
+        this.boardEl.append(cell);
       }
     }
   }
 
-  dealCards() {
+  createCell(row, column) {
+    const cell = document.createElement("div");
+    cell.classList.add("cell");
+    cell.setAttribute("id", "cell-" + "" + row + "-" + column);
+    cell.addEventListener("drop", (e) => {
+      this.handleDrop(e, row, column);
+    });
+    cell.addEventListener("dragover", this.handleDragOver);
+
+    return cell;
+  }
+
+  /** Update the board's game state */
+  updateBoard(row, column, card) {
+    const board = { ...this.board };
+    board[row][column] = {
+      value: card.power,
+      owner: "", // card.owner
+    };
+    this.board = board;
+
+    console.log("updated board ", this.board);
+  }
+
+  dealCards(e) {
     const hand = document.getElementById("hand");
     for (let i = 0; i < CARDS.length; i++) {
+      const cardData = CARDS[i];
       const card = document.createElement("div");
-      card.innerHTML = CARDS[i].name;
+
+      let stars = "";
+      for (let i = 0; i < cardData.rank; i++) {
+        stars += "*";
+      }
+
+      card.innerHTML = `
+        <div class="card__power">
+            <div class="top">${cardData.power[0]}</div>
+            <div class="right">${cardData.power[1]}</div>
+            <div class="bottom">${cardData.power[2]}</div>
+            <div class="left">${cardData.power[3]}</div>
+        </div>
+        <p class="card__name">${cardData.name}</p>
+        <p class="card__rank">${stars}</p>
+      `;
+
       card.classList.add("card");
       card.setAttribute("id", "card-" + i);
       card.setAttribute("draggable", "true");
-      card.addEventListener("dragstart", this.onDrag);
+      card.addEventListener("dragstart", (e) => {
+        this.handleDrag(e, cardData);
+      });
       hand.append(card);
     }
   }
 
-  onDrag(e) {
+  handleDrag(e, card) {
     // Add the target element's id to the data transfer object
-    console.log(e);
-    e.dataTransfer.setData("text/plain", e.target.innerText);
-    e.dataTransfer.setData("application/my-app", e.target.id);
+    e.dataTransfer.setData("tt/element-id", e.target.id);
+    e.dataTransfer.setData("tt/card-name", card.name);
+    e.dataTransfer.setData("text/plain", card.name); // fallback value
   }
 
-  onDrop(row, column) {
-    return (e) => {
-      this.handleDrop(e, row, column);
-    };
+  handleDrop(e, row, column) {
+    e.preventDefault();
+
+    /** Prevent further action if cell is already occupied */
+    if (e.target.firstChild) return;
+
+    /** Update board state with the new card */
+    var card = this.getDroppedCard(e);
+    this.updateBoard(row, column, card);
+
+    /** Move the card into the board cell in the DOM */
+    const id = e.dataTransfer.getData("tt/element-id");
+    e.target.appendChild(document.getElementById(id));
   }
 
-  handleDrop(ev, row, column) {
-    ev.preventDefault();
-    var data = ev.dataTransfer.getData("text/plain");
-
-    const id = ev.dataTransfer.getData("application/my-app");
-    ev.target.appendChild(document.getElementById(id));
-
-    const targetId = ev.target.id;
+  getDroppedCard(e) {
+    var cardName =
+      e.dataTransfer.getData("tt/card-name") ||
+      e.dataTransfer.getData("text/plain");
+    return CARDS.find(({ name }) => name === cardName);
   }
 
-  onDragOver(ev) {
+  handleDragOver(ev) {
     ev.preventDefault();
   }
 }

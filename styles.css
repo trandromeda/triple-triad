@@ -1,6 +1,5 @@
 h1 {
   font-size: 40px;
-  color: red;
 }
 
 p {
@@ -22,7 +21,7 @@ p {
   margin-bottom: 2em;
 }
 
-#board .space {
+#board .cell {
   flex: 1 0 30%;
   height: 250px;
   border: 1px solid black;
@@ -38,9 +37,52 @@ p {
   grid-gap: 1em;
 }
 
-#hand .card {
+.card {
+  box-sizing: border-box;
   flex: 0 0 30%;
   height: 250px;
+  padding: 0.5em;
   border: 1px solid red;
   border-radius: 5px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.card p {
+  margin: 0.5em 0;
+}
+
+.card__name {
+  font-weight: 700;
+  text-align: center;
+}
+
+.card__rank {
+  text-align: right;
+}
+
+.card__power {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr;
+  place-items: center;
+  width: 50%;
+}
+.card__power .top {
+  grid-column: 2 /3;
+  grid-row: 1 /2;
+}
+.card__power .right {
+  grid-column: 1/ 2;
+  grid-row: 2/3;
+}
+.card__power .bottom {
+  grid-column: 3 / 4;
+  grid-row: 2/3;
+}
+.card__power .left {
+  grid-column: 2 /3;
+  grid-row: 3 /4;
 }
