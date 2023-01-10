@@ -80,15 +80,18 @@ class Game {
     /** First, add the new card to the cell */
     board[row][column] = {
       power: card.power,
-      owner: this.playerTurn, // card.owner
+      owner: this.playerTurn,
       row,
       column,
     };
 
     /** Second, calculate if any surrounding cards can be flipped */
-    const flippableRowCards = this.checkRow(board[row], column, card);
-    const flippableColCards = this.checkColumn(board, row, column, card);
-    const cardsToFlip = [...flippableColCards, ...flippableRowCards];
+    const adjacentCells = this.getAdjacentCells(board, row, column);
+    const cardsToFlip = this.getCapturedCards(
+      adjacentCells,
+      card,
+      this.playerTurn
+    );
 
     /** Update the board state and board cells*/
     const boardCell = document.getElementById(`cell-${row}-${column}`);
@@ -110,43 +113,59 @@ class Game {
     this.board = board;
   }
 
-  /** Check cards in same row ie to the left and right */
-  checkRow(cardsInRow, column, card) {
-    const cardToLeft = cardsInRow[column - 1];
-    const cardToRight = cardsInRow[column + 1];
-
+  getAdjacentCells(board, row, column) {
     return [
-      ...this.getFlippableCards(card, cardToLeft, [3, 1]),
-      ...this.getFlippableCards(card, cardToRight, [1, 3]),
+      {
+        direction: "left",
+        card: board[row][column - 1],
+      },
+      {
+        direction: "right",
+        card: board[row][column + 1],
+      },
+      {
+        direction: "top",
+        card: board[row - 1] && board[row - 1][column],
+      },
+      {
+        direction: "bottom",
+        card: board[row + 1] && board[row + 1][column],
+      },
     ];
   }
 
-  /** Check cards in same column. Requires getting the previous and next rows */
-  checkColumn(board, row, column, card) {
-    let cardAbove = board[row - 1] && board[row - 1][column];
-    let cardBelow = board[row + 1] && board[row + 1][column];
+  getCapturedCards(adjacentCells, currentCard, currentPlayer) {
+    return adjacentCells
+      .map((adjacent) => {
+        const adjacentCard = adjacent.card;
+        const isOpponentCard =
+          adjacentCard && adjacentCard.owner !== currentPlayer;
 
-    return [
-      ...this.getFlippableCards(card, cardAbove, [0, 2]),
-      ...this.getFlippableCards(card, cardBelow, [2, 0]),
-    ];
+        if (isOpponentCard) {
+          const [attackingPosition, defendingPosition] =
+            this.getAttackingDefendingPositions(adjacent.direction);
+
+          if (
+            currentCard.power[attackingPosition] >
+            adjacentCard.power[defendingPosition]
+          )
+            return adjacentCard;
+        }
+      })
+      .filter((card) => card);
   }
 
-  getFlippableCards(currentCard, otherCard, positionsToCompare) {
-    const canCardBeFlipped = otherCard && otherCard.owner !== this.playerTurn;
-
-    if (canCardBeFlipped) {
-      const attackingPosition = positionsToCompare[0];
-      const defendingPosition = positionsToCompare[1];
-
-      if (
-        currentCard.power[attackingPosition] >
-        otherCard.power[defendingPosition]
-      )
-        return [otherCard];
+  getAttackingDefendingPositions(direction) {
+    switch (direction) {
+      case "top":
+        return [0, 2];
+      case "right":
+        return [1, 3];
+      case "bottom":
+        return [2, 0];
+      case "left":
+        return [3, 1];
     }
-
-    return [];
   }
 
   /**
