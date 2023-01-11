@@ -34,9 +34,10 @@
       var playerOne = document.getElementById("player-one-hand");
       var playerTwo = document.getElementById("player-two-hand");
       var startButton = document.getElementById("start-button");
-      startButton.addEventListener("click", () =>
-        game.start(playerOne, playerTwo)
-      );
+      startButton.addEventListener("click", () => {
+        startButton.classList.add("hidden");
+        game.start(playerOne, playerTwo);
+      });
     };
   </script>
 </html>

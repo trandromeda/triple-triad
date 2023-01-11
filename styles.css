@@ -65,6 +65,7 @@ p {
   align-items: center;
   padding: 0.25em;
   border: 0.5px solid #8a8a8a;
+  transition: background 0.3s;
 }
 
 #board .cell:nth-child(odd) {
@@ -92,11 +93,6 @@ p {
   flex-wrap: wrap;
   justify-content: space-around;
   grid-gap: 1em;
-}
-
-#player-one-hand.hidden,
-#player-two-hand.hidden {
-  visibility: hidden;
 }
 
 #player-one-hand .card,
@@ -170,6 +166,14 @@ p {
 .card__power .left {
   grid-column: 1 /2;
   grid-row: 2/3;
+}
+
+.hidden {
+  visibility: hidden;
+}
+
+#start-button.hidden {
+  display: none;
 }
 
 @media (max-width: 1030px) {

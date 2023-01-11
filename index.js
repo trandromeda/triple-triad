@@ -71,6 +71,16 @@ class Game {
     document.getElementById(
       "player-turn"
     ).innerHTML = `<h3>Player ${this.playerTurn}'s turn</h3>`;
+
+    /** Hide other player's hand */
+    document
+      .getElementById(`player-${this.playerTurn}-hand`)
+      .classList.remove("hidden");
+    const otherPlayer =
+      this.playerTurn === PLAYER.ONE ? PLAYER.TWO : PLAYER.ONE;
+    document
+      .getElementById(`player-${otherPlayer}-hand`)
+      .classList.add("hidden");
   }
 
   /** Update the board's game state */
