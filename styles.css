@@ -20,7 +20,7 @@ p {
 }
 
 header {
-  height: 125px;
+  min-height: 125px;
 }
 
 #player-turn.one {
@@ -163,7 +163,7 @@ header {
   grid-template-columns: 1fr 1fr 1fr;
   grid-template-rows: 1fr 1fr 1fr;
   place-items: center;
-  width: 50%;
+  width: 70%;
   font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
     "Lucida Sans", Arial, sans-serif;
   font-weight: 700;

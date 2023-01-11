@@ -20,12 +20,22 @@ class Game {
     this.maxCardsPerHand = 5;
     this.mode = mode;
     this.boardEl = undefined;
+    /**
+        Array<{
+            power: Array<number>,
+            owner: 'one' | 'two'
+            row: number,
+            column: number
+        }>;
+     */
     this.board = [
       [null, null, null],
       [null, null, null],
       [null, null, null],
     ];
     this.currentPlayer = undefined;
+    this.turnsPlayed = 0;
+    this.reset = false;
   }
 
   initialize(boardEl) {
@@ -34,7 +44,18 @@ class Game {
   }
 
   start(playerOneEl, playerTwoEl) {
-    this.updatePlayerTurn();
+    if (this.reset) {
+      this.board = [
+        [null, null, null],
+        [null, null, null],
+        [null, null, null],
+      ];
+      this.boardEl.innerHTML = "";
+      this.createCells(this.rows, this.columns);
+      this.turnsPlayed = 0;
+      this.reset = false;
+    }
+    this.updatePlayerTurn(undefined);
     this.dealCards(playerOneEl, "one");
     this.dealCards(playerTwoEl, "two");
   }
@@ -112,7 +133,7 @@ class Game {
 
   /** Update the board's game state */
   updateBoard(row, column, card) {
-    const board = { ...this.board };
+    const board = [...this.board];
 
     /** First, add the new card to the cell */
     board[row][column] = {
@@ -249,6 +270,8 @@ class Game {
     /** Prevent further action if cell is already occupied */
     if (e.target.firstChild) return;
 
+    this.turnsPlayed += 1;
+
     /** Update board state with the new card */
     var card = this.getDroppedCard(e);
     this.updateBoard(row, column, card);
@@ -256,6 +279,12 @@ class Game {
     /** Move the card into the board cell in the DOM */
     const id = e.dataTransfer.getData("tt/element-id");
     e.target.appendChild(document.getElementById(id));
+
+    /** Check if game is over */
+    if (this.turnsPlayed === 9) {
+      this.determineWinner(this.board);
+      return;
+    }
 
     /** Update player turn */
     const otherPlayer = getOtherPlayer(this.currentPlayer);
@@ -271,6 +300,38 @@ class Game {
 
   handleDragOver(ev) {
     ev.preventDefault();
+  }
+
+  determineWinner(board) {
+    let playerOneScore = 0;
+    let playerTwoScore = 0;
+    for (let i = 0; i < board.length; i++) {
+      for (let j = 0; j < board[i].length; j++) {
+        const cell = board[i][j];
+        if (cell.owner === PLAYER.ONE) playerOneScore += 1;
+        if (cell.owner === PLAYER.TWO) playerTwoScore += 1;
+      }
+    }
+
+    const playerTurnEl = document.getElementById("player-turn");
+
+    const isDraw = playerOneScore === playerTwoScore;
+    if (isDraw) {
+      playerTurnEl.innerHTML = `<h1>Draw!</h1>`;
+      return;
+    }
+
+    const winner = playerOneScore > playerTwoScore ? PLAYER.ONE : PLAYER.TWO;
+    playerTurnEl.innerHTML = `<h1>Player ${winner} wins!</h1>`;
+    playerTurnEl.classList.add(winner);
+    playerTurnEl.classList.remove(getOtherPlayer(winner));
+    // const audio = new Audio('audio_file.mp3');
+    // audio.play();
+
+    this.reset = true;
+    const startButton = document.getElementById("start-button");
+    startButton.classList.remove("hidden");
+    startButton.innerText = "Play again";
   }
 }
 
