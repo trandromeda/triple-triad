@@ -325,8 +325,11 @@ class Game {
     playerTurnEl.innerHTML = `<h1>Player ${winner} wins!</h1>`;
     playerTurnEl.classList.add(winner);
     playerTurnEl.classList.remove(getOtherPlayer(winner));
-    // const audio = new Audio('audio_file.mp3');
-    // audio.play();
+
+    const audio = new Audio(
+      "https://github.com/trandromeda/triple-triad/blob/main/ff-victory.mp3?raw=true"
+    );
+    audio.play();
 
     this.reset = true;
     const startButton = document.getElementById("start-button");
