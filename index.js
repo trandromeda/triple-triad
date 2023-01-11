@@ -34,6 +34,7 @@ class Game {
       [null, null, null],
     ];
     this.currentPlayer = undefined;
+    this.firstPlayer = undefined;
     this.turnsPlayed = 0;
     this.reset = false;
   }
@@ -80,6 +81,7 @@ class Game {
       this.currentPlayer = [PLAYER.ONE, PLAYER.TWO][
         Math.floor(Math.random() * 2)
       ];
+      this.firstPlayer = this.currentPlayer;
     } else {
       this.currentPlayer = player;
     }
@@ -313,11 +315,19 @@ class Game {
       }
     }
 
+    /** Because there are an odd number of turns, the second player to go keeps one hand in card, which counts as a point  */
+    if (this.firstPlayer === PLAYER.ONE) {
+      playerTwoScore += 1;
+    } else {
+      playerOneScore += 1;
+    }
+
     const playerTurnEl = document.getElementById("player-turn");
 
     const isDraw = playerOneScore === playerTwoScore;
     if (isDraw) {
       playerTurnEl.innerHTML = `<h1>Draw!</h1>`;
+      this.enableReset();
       return;
     }
 
@@ -331,6 +341,10 @@ class Game {
     );
     audio.play();
 
+    this.enableReset();
+  }
+
+  enableReset() {
     this.reset = true;
     const startButton = document.getElementById("start-button");
     startButton.classList.remove("hidden");
