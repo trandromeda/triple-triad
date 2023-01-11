@@ -3,36 +3,84 @@
   --cell-width: 120px;
 }
 
+body {
+  width: 100%;
+}
+
 h1 {
   font-size: 40px;
+  text-align: center;
 }
 
 p {
   font-size: 18px;
+  text-align: center;
+}
+
+#start-button {
+  border-radius: 8px;
+  border-width: 0;
+  background: rgb(95, 67, 105);
+  color: #ffffff;
+  cursor: pointer;
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  list-style: none;
+  margin: 0 auto;
+  padding: 10px 12px;
+  text-align: center;
+  transition: all 200ms;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
 }
 
 .container {
+  padding: 1em;
   display: flex;
   justify-content: space-between;
 }
 
 #board {
-  margin: auto;
-  max-width: 400px;
-  width: 40%;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  grid-gap: 1em;
-  margin-bottom: 2em;
+  display: grid;
+  width: 100%;
+  max-width: 500px;
+  min-height: 500px;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr;
+
+  /* grid-gap: 0.25em; */
+  border: 3px solid #f2f2f2;
+  border-style: groove;
+  border-radius: 2%;
+  overflow: hidden;
 }
 
 #board .cell {
-  /* flex: 1 0 30%; */
-  width: var(--cell-width);
-  height: var(--cell-height);
-  border: 1px solid black;
-  border-radius: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.25em;
+  border: 0.5px solid #8a8a8a;
+}
+
+#board .cell:nth-child(odd) {
+  background: #f1f1f1;
+}
+
+#board .cell:nth-child(even) {
+  background: #d9d9d9;
+}
+
+#board .cell.one {
+  background: rgba(58, 91, 122, 0.45);
+}
+
+#board .cell.two {
+  background: rgba(123, 59, 59, 0.45);
 }
 
 #player-one-hand,
@@ -40,7 +88,6 @@ p {
   margin: auto;
   width: 30%;
   height: 100%;
-  border: 1px solid #f1f1f1;
   display: flex;
   flex-wrap: wrap;
   justify-content: space-around;
@@ -54,29 +101,32 @@ p {
 
 #player-one-hand .card,
 .cell.one .card {
-  border: 1px solid blue;
+  background: rgb(58, 91, 122);
 }
 
 #player-two-hand .card,
 .cell.two .card {
-  border: 1px solid red;
+  background: rgb(123, 59, 59);
 }
 
 .card {
   box-sizing: border-box;
-  /* flex: 0 0 30%; */
   width: var(--cell-width);
   height: var(--cell-height);
+  border: 4px inset #fcba03;
   padding: 0.5em;
-  border-radius: 5px;
+  margin: 0 auto;
 
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  align-items: center;
 }
 
 .card p {
   margin: 0.5em 0;
+  font-weight: 700;
+  color: #ffffff;
 }
 
 .card__name {
@@ -93,7 +143,7 @@ p {
 }
 
 .card__rank span {
-  font-size: 0.8em;
+  font-size: 0.6em;
 }
 
 .card__power {
@@ -103,6 +153,7 @@ p {
   place-items: center;
   width: 50%;
   font-weight: 700;
+  color: #ffffff;
 }
 .card__power .top {
   grid-column: 2 /3;
@@ -119,4 +170,17 @@ p {
 .card__power .left {
   grid-column: 1 /2;
   grid-row: 2/3;
+}
+
+@media (max-width: 1030px) {
+  .container {
+    flex-direction: column;
+    align-items: center;
+    grid-gap: 2em;
+  }
+
+  #player-one-hand,
+  #player-two-hand {
+    width: 100%;
+  }
 }

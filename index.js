@@ -70,7 +70,7 @@ class Game {
 
     document.getElementById(
       "player-turn"
-    ).innerHTML = `<h3>It is player ${this.playerTurn}'s turn</h3>`;
+    ).innerHTML = `<h3>Player ${this.playerTurn}'s turn</h3>`;
   }
 
   /** Update the board's game state */
@@ -94,9 +94,6 @@ class Game {
     );
 
     /** Update the board state and board cells*/
-    const boardCell = document.getElementById(`cell-${row}-${column}`);
-    boardCell.classList.add(this.playerTurn);
-
     const otherPlayer =
       this.playerTurn === PLAYER.ONE ? PLAYER.TWO : PLAYER.ONE;
 
@@ -111,6 +108,9 @@ class Game {
     });
 
     this.board = board;
+    document
+      .getElementById(`cell-${row}-${column}`)
+      .classList.add(this.playerTurn);
   }
 
   getAdjacentCells(board, row, column) {
@@ -212,14 +212,14 @@ class Game {
     }
 
     cardEl.innerHTML = `
-    <div class="card__power">
-        <div class="top">${powers[0]}</div>
-        <div class="right">${powers[1]}</div>
-        <div class="bottom">${powers[2]}</div>
-        <div class="left">${powers[3]}</div>
-    </div>
-    <p class="card__name">${cardData.name}</p>
     <div class="card__rank">${stars}</div>
+    <p class="card__name">${cardData.name}</p>
+    <div class="card__power">
+    <div class="top">${powers[0]}</div>
+    <div class="right">${powers[1]}</div>
+    <div class="bottom">${powers[2]}</div>
+    <div class="left">${powers[3]}</div>
+</div>
   `;
 
     cardEl.classList.add("card");
