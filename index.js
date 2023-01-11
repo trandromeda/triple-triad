@@ -12,7 +12,6 @@ const PLAYER = {
  * Handle end of game
  */
 class Game {
-  boundDealCards = () => this.dealCards();
   boundStart = () => this.start();
 
   constructor(mode) {
@@ -26,7 +25,7 @@ class Game {
       [null, null, null],
       [null, null, null],
     ];
-    this.playerTurn = undefined;
+    this.currentPlayer = undefined;
   }
 
   initialize(boardEl) {
@@ -43,44 +42,69 @@ class Game {
   createCells(rows, columns) {
     for (let i = 0; i < rows; i++) {
       for (let j = 0; j < columns; j++) {
-        const cell = this.createCell(i, j);
+        const cell = document.createElement("div");
+        cell.classList.add("cell");
+        cell.setAttribute("id", "cell-" + "" + i + "-" + j);
+        cell.addEventListener("drop", (e) => {
+          this.handleDrop(e, i, j);
+        });
+        cell.addEventListener("dragover", this.handleDragOver);
         this.boardEl.append(cell);
       }
     }
   }
 
-  createCell(row, column) {
-    const cell = document.createElement("div");
-    cell.classList.add("cell");
-    cell.setAttribute("id", "cell-" + "" + row + "-" + column);
-    cell.addEventListener("drop", (e) => {
-      this.handleDrop(e, row, column);
-    });
-    cell.addEventListener("dragover", this.handleDragOver);
-
-    return cell;
-  }
-
-  updatePlayerTurn(playerNum) {
-    if (!playerNum) {
-      this.playerTurn = [PLAYER.ONE, PLAYER.TWO][Math.floor(Math.random() * 2)];
+  updatePlayerTurn(player) {
+    if (!player) {
+      this.currentPlayer = [PLAYER.ONE, PLAYER.TWO][
+        Math.floor(Math.random() * 2)
+      ];
     } else {
-      this.playerTurn = playerNum;
+      this.currentPlayer = player;
     }
 
     document.getElementById(
       "player-turn"
-    ).innerHTML = `<h3>Player ${this.playerTurn}'s turn</h3>`;
+    ).innerHTML = `<h3>Player ${this.currentPlayer}'s turn</h3>`;
 
     /** Hide other player's hand */
     document
-      .getElementById(`player-${this.playerTurn}-hand`)
+      .getElementById(`player-${this.currentPlayer}-hand`)
       .classList.remove("hidden");
-    const otherPlayer =
-      this.playerTurn === PLAYER.ONE ? PLAYER.TWO : PLAYER.ONE;
+    const otherPlayer = getOtherPlayer(this.currentPlayer);
     document
       .getElementById(`player-${otherPlayer}-hand`)
       .classList.add("hidden");
+  }
+
+  /**
+   * There can only be two cards of four-star or higher rarity in a deck.
+   * There can only be one card of five-star rarity in a deck.
+   */
+  dealCards(handEl, playerNum) {
+    handEl.innerHTML = "";
+
+    const cards = shuffle(CARDS);
+    let numFourStarCardsInHand = 0;
+    let numFiveStarCardsInHand = 0;
+
+    for (let i = 0; i < this.maxCardsPerHand; i++) {
+      let drawnCard = drawCard(cards);
+
+      if (numFiveStarCardsInHand > 0 && drawnCard.rank === 5) {
+        drawnCard = drawCard(cards, drawnCard);
+      }
+      if (numFourStarCardsInHand > 1 && drawnCard.rank === 4) {
+        drawnCard = drawCard(cards, drawnCard);
+      }
+
+      if (drawnCard.rank === 4) numFourStarCardsInHand += 1;
+      if (drawnCard.rank === 5) numFiveStarCardsInHand += 1;
+
+      const cardEl = this.createCardEl(drawnCard, playerNum);
+
+      handEl.append(cardEl);
+    }
   }
 
   /** Update the board's game state */
@@ -90,7 +114,7 @@ class Game {
     /** First, add the new card to the cell */
     board[row][column] = {
       power: card.power,
-      owner: this.playerTurn,
+      owner: this.currentPlayer,
       row,
       column,
     };
@@ -100,27 +124,25 @@ class Game {
     const cardsToFlip = this.getCapturedCards(
       adjacentCells,
       card,
-      this.playerTurn
+      this.currentPlayer
     );
 
     /** Update the board state and board cells*/
-    const otherPlayer =
-      this.playerTurn === PLAYER.ONE ? PLAYER.TWO : PLAYER.ONE;
-
+    const otherPlayer = getOtherPlayer(this.currentPlayer);
     cardsToFlip.forEach((card) => {
-      board[card.row][card.column].owner = this.playerTurn;
+      board[card.row][card.column].owner = this.currentPlayer;
       const boardCell = document.getElementById(
         `cell-${card.row}-${card.column}`
       );
 
       boardCell.classList.remove(otherPlayer);
-      boardCell.classList.add(this.playerTurn);
+      boardCell.classList.add(this.currentPlayer);
     });
 
-    this.board = board;
     document
       .getElementById(`cell-${row}-${column}`)
-      .classList.add(this.playerTurn);
+      .classList.add(this.currentPlayer);
+    this.board = board;
   }
 
   getAdjacentCells(board, row, column) {
@@ -178,37 +200,7 @@ class Game {
     }
   }
 
-  /**
-   * There can only be two cards of four-star or higher rarity in a deck.
-   * There can only be one card of five-star rarity in a deck.
-   */
-  dealCards(handEl, playerNum) {
-    handEl.innerHTML = "";
-
-    const cards = shuffle(CARDS);
-    let numFourStarCardsInHand = 0;
-    let numFiveStarCardsInHand = 0;
-
-    for (let i = 0; i < this.maxCardsPerHand; i++) {
-      let drawnCard = drawCard(cards);
-
-      if (numFiveStarCardsInHand > 0 && drawnCard.rank === 5) {
-        drawnCard = drawCard(cards, drawnCard);
-      }
-      if (numFourStarCardsInHand > 1 && drawnCard.rank === 4) {
-        drawnCard = drawCard(cards, drawnCard);
-      }
-
-      if (drawnCard.rank === 4) numFourStarCardsInHand += 1;
-      if (drawnCard.rank === 5) numFiveStarCardsInHand += 1;
-
-      const cardEl = this.createCardEl(drawnCard, playerNum);
-
-      handEl.append(cardEl);
-    }
-  }
-
-  createCardEl(cardData, playerNum) {
+  createCardEl(cardData) {
     const cardEl = document.createElement("div");
 
     const powers = cardData.power.map((power) => {
@@ -222,15 +214,15 @@ class Game {
     }
 
     cardEl.innerHTML = `
-    <div class="card__rank">${stars}</div>
-    <p class="card__name">${cardData.name}</p>
-    <div class="card__power">
-    <div class="top">${powers[0]}</div>
-    <div class="right">${powers[1]}</div>
-    <div class="bottom">${powers[2]}</div>
-    <div class="left">${powers[3]}</div>
-</div>
-  `;
+        <div class="card__rank">${stars}</div>
+        <p class="card__name">${cardData.name}</p>
+        <div class="card__power">
+            <div class="top">${powers[0]}</div>
+            <div class="right">${powers[1]}</div>
+            <div class="bottom">${powers[2]}</div>
+            <div class="left">${powers[3]}</div>
+        </div>
+    `;
 
     cardEl.classList.add("card");
     cardEl.setAttribute("id", guidGenerator());
@@ -243,7 +235,6 @@ class Game {
   }
 
   handleDrag(e, card) {
-    // Add the target element's id to the data transfer object
     e.dataTransfer.setData("tt/element-id", e.target.id);
     e.dataTransfer.setData("tt/card-name", card.name);
     e.dataTransfer.setData("text/plain", card.name); // fallback value
@@ -264,8 +255,7 @@ class Game {
     e.target.appendChild(document.getElementById(id));
 
     /** Update player turn */
-    const otherPlayer =
-      this.playerTurn === PLAYER.ONE ? PLAYER.TWO : PLAYER.ONE;
+    const otherPlayer = getOtherPlayer(this.currentPlayer);
     this.updatePlayerTurn(otherPlayer);
   }
 
@@ -296,6 +286,10 @@ function drawCard(cards, returnedCard) {
     cards.push(returnedCard);
   }
   return cards.shift();
+}
+
+function getOtherPlayer(currentPlayer) {
+  return currentPlayer === PLAYER.ONE ? PLAYER.TWO : PLAYER.ONE;
 }
 
 function guidGenerator() {

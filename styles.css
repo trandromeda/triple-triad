@@ -168,8 +168,10 @@ p {
   grid-row: 2/3;
 }
 
-.hidden {
+#player-one-hand.hidden,
+#player-two-hand.hidden {
   visibility: hidden;
+  height: 1px;
 }
 
 #start-button.hidden {
@@ -186,5 +188,10 @@ p {
   #player-one-hand,
   #player-two-hand {
     width: 100%;
+    order: 0;
+  }
+
+  #board {
+    order: 1;
   }
 }
