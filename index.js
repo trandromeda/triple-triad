@@ -63,9 +63,8 @@ class Game {
       this.currentPlayer = player;
     }
 
-    document.getElementById(
-      "player-turn"
-    ).innerHTML = `<h3>Player ${this.currentPlayer}'s turn</h3>`;
+    const playerTurnEl = document.getElementById("player-turn");
+    playerTurnEl.innerHTML = `<h3>Player ${this.currentPlayer}'s turn</h3>`;
 
     /** Hide other player's hand */
     document
@@ -75,6 +74,10 @@ class Game {
     document
       .getElementById(`player-${otherPlayer}-hand`)
       .classList.add("hidden");
+
+    /** Style player turn */
+    playerTurnEl.classList.add(this.currentPlayer);
+    playerTurnEl.classList.remove(otherPlayer);
   }
 
   /**

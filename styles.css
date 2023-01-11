@@ -1,6 +1,8 @@
 :root {
-  --cell-height: 200px;
-  --cell-width: 120px;
+  --cell-height: 150px;
+  --cell-width: 90px;
+  --blue: rgb(58, 91, 122);
+  --red: rgb(123, 59, 59);
 }
 
 body {
@@ -15,6 +17,18 @@ h1 {
 p {
   font-size: 18px;
   text-align: center;
+}
+
+header {
+  height: 125px;
+}
+
+#player-turn.one {
+  color: var(--blue);
+}
+
+#player-turn.two {
+  color: var(--red);
 }
 
 #start-button {
@@ -42,18 +56,18 @@ p {
   padding: 1em;
   display: flex;
   justify-content: space-between;
+  grid-gap: 1em;
 }
 
 #board {
   display: grid;
   width: 100%;
   max-width: 500px;
-  min-height: 500px;
+  height: 500px;
   grid-template-columns: 1fr 1fr 1fr;
   grid-template-rows: 1fr 1fr 1fr;
 
-  /* grid-gap: 0.25em; */
-  border: 3px solid #f2f2f2;
+  border: 5px solid #f2f2f2;
   border-style: groove;
   border-radius: 2%;
   overflow: hidden;
@@ -64,7 +78,7 @@ p {
   justify-content: space-between;
   align-items: center;
   padding: 0.25em;
-  border: 0.5px solid #8a8a8a;
+  border: 0.5px solid #d9d9d9;
   transition: background 0.3s;
 }
 
@@ -97,12 +111,12 @@ p {
 
 #player-one-hand .card,
 .cell.one .card {
-  background: rgb(58, 91, 122);
+  background: var(--blue);
 }
 
 #player-two-hand .card,
 .cell.two .card {
-  background: rgb(123, 59, 59);
+  background: var(--red);
 }
 
 .card {
@@ -121,12 +135,14 @@ p {
 
 .card p {
   margin: 0.5em 0;
-  font-weight: 700;
   color: #ffffff;
 }
 
 .card__name {
   text-align: center;
+  font-size: 0.9em;
+  font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
+  font-weight: 700;
 }
 
 .card__rank {
@@ -148,6 +164,8 @@ p {
   grid-template-rows: 1fr 1fr 1fr;
   place-items: center;
   width: 50%;
+  font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
+    "Lucida Sans", Arial, sans-serif;
   font-weight: 700;
   color: #ffffff;
 }
@@ -171,7 +189,7 @@ p {
 #player-one-hand.hidden,
 #player-two-hand.hidden {
   visibility: hidden;
-  height: 1px;
+  /* height: 1px; */
 }
 
 #start-button.hidden {
