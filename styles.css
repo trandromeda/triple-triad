@@ -3,15 +3,18 @@
   --cell-width: 90px;
   --blue: rgb(58, 91, 122);
   --red: rgb(123, 59, 59);
+  --serif-font: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
 }
 
 body {
   width: 100%;
 }
 
-h1 {
+h1,
+h3 {
   font-size: 40px;
   text-align: center;
+  font-family: var(--serif-font);
 }
 
 p {
@@ -141,7 +144,7 @@ header {
 .card__name {
   text-align: center;
   font-size: 0.9em;
-  font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
+  font-family: var(--serif-font);
   font-weight: 700;
 }
 
